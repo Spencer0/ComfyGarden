@@ -1,19 +1,19 @@
 'use-strict';
 
-const gridX = 250;
-const gridY= 150;
+//API Call to set these (so i can configure from the database)
+const gridX = 100;
+const gridY= 100;
 const cellX = 16;
 const cellY = 16;
 
 document.addEventListener('DOMContentLoaded', function(event) {
     onInitalize();
-    
 })
 
 function onInitalize(){
-    console.log("Being programming");
+    console.log("begin programming");
     let layerZero = new CanvasLayerZero();
-    console.log(layerZero.context);
+    let cellManager = new CellManager(layerZero.context);
 }
 
 
@@ -24,6 +24,9 @@ function CellManager(ctx){
     this.context = ctx;
     this.cells = [];
     this.currentTool = "shovel";
+
+    const setCurrentTool = (x) => this.currentTool = x;
+    const setCurrentCells = (x) => this.cells = x;
 
     const drawCell = (cell) =>{
         switch(cell.cellValue){
@@ -42,6 +45,7 @@ function CellManager(ctx){
     }
 
     const updateCell = (cell) => {
+        //This should be an API call (current tool, cellX, cellY, userID)
         console.log(this.currentTool)
         switch(this.currentTool){
             case 'shovel':
@@ -68,11 +72,29 @@ function CellManager(ctx){
         return cell;
     }
 
-    const init = () =>{
+    const parseMapArrayAndDraw = (map) => {
+        let i = 0;
+        let j = 0;
+        for(cellRow of map){
+            this.cells[i] = [];
+            for(cell of cellRow){
+                let cellPos = cell.cellPos;
+                let cellValue = cell.cellValue;
+                let newCell = new Cell(cellPos, cellSize = {x:cellX, y:cellY}, cellValue = cellValue)
+                console.log(newCell)
+                this.cells[i][j] = newCell;
+                drawCell(cell)
+                j++;
+            }
+            i++;
+            j = 0;
+        }
+    }
+
+    const randomlyGenerateMap = () =>{
         for(let i = 0; i < (gridX); i++){
             this.cells[i] = [];
             for(let j = 0; j < (gridY); j++){
-                //Random for now, in future this is where the fetch goes to the DB
                 let newCell = new Cell({x: i*16, y: j*16})
                 let coinFlip = Math.random();
                 if(coinFlip <= 0.3){
@@ -88,17 +110,43 @@ function CellManager(ctx){
         }
     }
 
+    const init = () =>{
+        fetch("http://127.0.0.1:4567/map") 
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            parseMapArrayAndDraw(data.map);
+        })
+        .catch(function(e) {
+            console.log(e)
+            randomlyGenerateMap()
+        });
+    }
+
     const gardenClickEvent = () => {
         let managerContext = this;
         document.getElementById('layer-zero').addEventListener('click', function(e){
             let x = parseInt(e.offsetX / 16);
             let y = parseInt(e.offsetY / 16);
+            console.log(x,y, managerContext)
             updateCell(managerContext.cells[x][y]);
-            drawCell(managerContext.cells[x][y])
+            drawCell(managerContext.cells[x][y]);
+            setCurrentCells(managerContext.cells);
+            saveMap()
         });
+        
     }
 
-    const setCurrentTool = (x) => this.currentTool = x;
+    const saveMap = () =>{
+        
+        //Submit to DB
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", "http://127.0.0.1:4567/map", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({"map": this.cells}));
+
+    }
+
     init()
     gardenClickEvent();
     setEventListeners();
@@ -143,9 +191,9 @@ function CanvasLayerZero(){
     this.canvas.width = gridX * cellX;
     this.canvas.height =gridY * cellY;
     this.context = this.canvas.getContext('2d');
-    this.cellManager = new CellManager(this.context);
 
-};
+
+}
 
 //Model
 function Cell(cellPos, cellSize = {x:cellX, y:cellY}, cellValue = 'D'){
