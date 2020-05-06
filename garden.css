@@ -1,0 +1,24 @@
+select {
+    font: inherit;
+    font-weight: bold;
+}
+
+#garden{
+    cursor: url(MediumShovel.png) 32 64,auto;
+    margin: 0;
+    font-size: 24px;
+}
+
+#menu-bar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: black;
+    border: .5em black solid;
+}
+
+
+::-webkit-scrollbar {
+    display: none;
+}
