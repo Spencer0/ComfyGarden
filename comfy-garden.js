@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
 })
 
 function onInitalize(){
-    console.log("begin programming");
     let layerZero = new CanvasLayerZero();
     let cellManager = new CellManager(layerZero.context);
 }
@@ -45,8 +44,6 @@ function CellManager(ctx){
     }
 
     const updateCell = (cell) => {
-        //This should be an API call (current tool, cellX, cellY, userID)
-        console.log(this.currentTool)
         switch(this.currentTool){
             case 'shovel':
                 if(cell.cellValue === 'D'){
@@ -81,7 +78,6 @@ function CellManager(ctx){
                 let cellPos = cell.cellPos;
                 let cellValue = cell.cellValue;
                 let newCell = new Cell(cellPos, cellSize = {x:cellX, y:cellY}, cellValue = cellValue)
-                console.log(newCell)
                 this.cells[i][j] = newCell;
                 drawCell(cell)
                 j++;
@@ -114,12 +110,12 @@ function CellManager(ctx){
         fetch("http://127.0.0.1:4567/map") 
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             parseMapArrayAndDraw(data.map);
         })
         .catch(function(e) {
             console.log(e)
             randomlyGenerateMap()
+            saveMap()
         });
     }
 
@@ -128,7 +124,6 @@ function CellManager(ctx){
         document.getElementById('layer-zero').addEventListener('click', function(e){
             let x = parseInt(e.offsetX / 16);
             let y = parseInt(e.offsetY / 16);
-            console.log(x,y, managerContext)
             updateCell(managerContext.cells[x][y]);
             drawCell(managerContext.cells[x][y]);
             setCurrentCells(managerContext.cells);
@@ -161,7 +156,6 @@ function CellManager(ctx){
             })
             let newTool = e.srcElement.options[e.srcElement.selectedIndex].value;
             setCurrentTool(newTool);
-            console.log(garden.classList, e, this.currentTool);
             switch(newTool){
                 case 'rake':
                     garden.classList.add('hoe-cursor');
@@ -178,7 +172,6 @@ function CellManager(ctx){
                 default:
                     break;
             }
-            console.log(garden.classList, e, this.currentTool);
         });
         this.currentTool = managerContext.currentTool;
     }
