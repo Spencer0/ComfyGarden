@@ -1,12 +1,11 @@
 select {
     font: inherit;
-    font-weight: bold;
 }
 
 #garden{
-    cursor: url(MediumShovel.png) 32 64,auto;
     margin: 0;
     font-size: 24px;
+    font-weight: bold;
 }
 
 #menu-bar{
@@ -18,6 +17,16 @@ select {
     border: .5em black solid;
 }
 
+.shovel-cursor{
+    cursor: url(MediumShovel.png) 32 64, auto;
+}
+.seed-cursor{
+    cursor: url(MediumSeed.png) 32 64, auto;
+}
+
+.hoe-cursor{
+    cursor: url(MediumGardenHoe.png) 32 64, auto;
+}
 
 ::-webkit-scrollbar {
     display: none;

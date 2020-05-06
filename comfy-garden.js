@@ -23,7 +23,7 @@ function onInitalize(){
 function CellManager(ctx){
     this.context = ctx;
     this.cells = [[]];
-    this.current_tool = "shovel";
+    this.currentTool = "shovel";
 
     const drawCell = (cell) =>{
         switch(cell.cellValue){
@@ -62,16 +62,34 @@ function CellManager(ctx){
     setEventListeners();
     
     function setEventListeners(){
-
         document.getElementById('tool-select').addEventListener('change', function(e){
-            this.current_tool = e.srcElement.options[e.srcElement.selectedIndex].value;
-            console.log("Updating cursor",document.body.style.cursor )
-            document.body.style.cursor = 'url(MediumGardenHoe.png) 32 64,auto;'
-            console.log("Updated cursor", document.body.style )
+            let garden = document.getElementById('garden');
+            let cursorClasses = ['hoe-cursor', 'shovel-cursor', 'seed-cursor']
+            cursorClasses.forEach(function(e){
+                garden.classList.remove(e)
+            })
+            this.currentTool = e.srcElement.options[e.srcElement.selectedIndex].value;
+            console.log(garden.classList, e, this.currentTool);
+            switch(this.currentTool){
+                case 'rake':
+                    garden.classList.add('hoe-cursor');
+                    break;
+                case 'seed':
+                    garden.classList.add('seed-cursor');
+                    break;
+                case 'shovel':
+                    garden.classList.add('shovel-cursor');
+                    break;
+                default:
+                    break;
+            }
+            console.log(garden.classList, e, this.currentTool);
         });
 
         document.getElementById('canvas-container').addEventListener('click', function(e){
             console.log(e);
+            //Find the cell of E
+            //Apply Change to value
         });
     }
 
