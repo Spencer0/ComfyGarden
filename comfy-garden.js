@@ -22,7 +22,7 @@ function onInitalize(){
 //Controller
 function CellManager(ctx){
     this.context = ctx;
-    this.cells = [[]];
+    this.cells = [];
     this.currentTool = "shovel";
 
     const drawCell = (cell) =>{
@@ -41,8 +41,36 @@ function CellManager(ctx){
         this.context.fillRect(cell.cellPos.x, cell.cellPos.y, cell.cellSize.x, cell.cellSize.y);
     }
 
+    const updateCell = (cell) => {
+        console.log(this.currentTool)
+        switch(this.currentTool){
+            case 'shovel':
+                if(cell.cellValue === 'D'){
+                    cell.cellValue = 'W';
+                }
+                break;
+            case 'seed':
+                if(cell.cellValue ==='D'){
+                    cell.cellValue = 'G';
+                }
+                break;
+            case 'rake':
+                if(cell.cellValue === 'G'){
+                    cell.cellValue = 'D';
+                }
+                break;
+            case 'bucket':
+                if(cell.cellValue === 'W'){
+                    cell.cellValue = 'D';
+                }
+                break;
+        }
+        return cell;
+    }
+
     const init = () =>{
         for(let i = 0; i < (gridX); i++){
+            this.cells[i] = [];
             for(let j = 0; j < (gridY); j++){
                 //Random for now, in future this is where the fetch goes to the DB
                 let newCell = new Cell({x: i*16, y: j*16})
@@ -55,22 +83,38 @@ function CellManager(ctx){
                     newCell.cellValue = 'D'
                 }
                 drawCell(newCell);
+                this.cells[i][j] = newCell;
             }
         }
     }
+
+    const gardenClickEvent = () => {
+        let managerContext = this;
+        document.getElementById('layer-zero').addEventListener('click', function(e){
+            let x = parseInt(e.offsetX / 16);
+            let y = parseInt(e.offsetY / 16);
+            updateCell(managerContext.cells[x][y]);
+            drawCell(managerContext.cells[x][y])
+        });
+    }
+
+    const setCurrentTool = (x) => this.currentTool = x;
     init()
+    gardenClickEvent();
     setEventListeners();
     
     function setEventListeners(){
+        let managerContext = this;
         document.getElementById('tool-select').addEventListener('change', function(e){
             let garden = document.getElementById('garden');
-            let cursorClasses = ['hoe-cursor', 'shovel-cursor', 'seed-cursor']
+            let cursorClasses = ['hoe-cursor', 'shovel-cursor', 'seed-cursor', 'bucket-cursor']
             cursorClasses.forEach(function(e){
                 garden.classList.remove(e)
             })
-            this.currentTool = e.srcElement.options[e.srcElement.selectedIndex].value;
+            let newTool = e.srcElement.options[e.srcElement.selectedIndex].value;
+            setCurrentTool(newTool);
             console.log(garden.classList, e, this.currentTool);
-            switch(this.currentTool){
+            switch(newTool){
                 case 'rake':
                     garden.classList.add('hoe-cursor');
                     break;
@@ -80,17 +124,15 @@ function CellManager(ctx){
                 case 'shovel':
                     garden.classList.add('shovel-cursor');
                     break;
+                case 'bucket':
+                    garden.classList.add('bucket-cursor');
+                    break;
                 default:
                     break;
             }
             console.log(garden.classList, e, this.currentTool);
         });
-
-        document.getElementById('canvas-container').addEventListener('click', function(e){
-            console.log(e);
-            //Find the cell of E
-            //Apply Change to value
-        });
+        this.currentTool = managerContext.currentTool;
     }
 
 }

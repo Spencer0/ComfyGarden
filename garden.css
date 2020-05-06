@@ -24,6 +24,10 @@ select {
     cursor: url(MediumSeed.png) 32 64, auto;
 }
 
+.bucket-cursor{
+    cursor: url(MediumBucket.png) 32 64, auto;
+}
+
 .hoe-cursor{
     cursor: url(MediumGardenHoe.png) 32 64, auto;
 }
