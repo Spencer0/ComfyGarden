@@ -1,5 +1,6 @@
 'use strict';
 
+const serverless = require('serverless-http');
 const express = require("express");
 const MongoClient = require("mongodb");
 const port = 4567;
@@ -34,7 +35,6 @@ MongoClient.connect(uri, (err, client) => {
             if (err) {
               console.log("Error in updating database information");
             } else {
-			  console.log(req)
               res.send("Updated successfully");
             }
           }

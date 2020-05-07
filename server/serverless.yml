@@ -1,0 +1,19 @@
+service: comfy-garden-service
+provider: 
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+functions:
+  app:
+    handler: app/app.handler
+    events: 
+      - http: 
+          path: /map
+          method: PUT
+          cors: true
+      - http: 
+          path: /map
+          method: GET
+          cors: true

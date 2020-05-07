@@ -1,8 +1,8 @@
 'use-strict';
 
 //API Call to set these (so i can configure from the database)
-const gridX = 100;
-const gridY= 100;
+const gridX = 125;
+const gridY = 75;
 const cellX = 16;
 const cellY = 16;
 
@@ -23,7 +23,6 @@ function CellManager(ctx){
     this.context = ctx;
     this.cells = [];
     this.currentTool = "shovel";
-
     const setCurrentTool = (x) => this.currentTool = x;
     const setCurrentCells = (x) => this.cells = x;
 
@@ -107,16 +106,24 @@ function CellManager(ctx){
     }
 
     const init = () =>{
-        fetch("http://127.0.0.1:4567/map") 
+        
+        fetch("https://d6jiz6o9h1.execute-api.us-east-1.amazonaws.com/garden", {
+            mode: 'cors',
+            headers: {
+              'Access-Control-Allow-Origin':'*',
+              'Access-Control-Allow-Headers':'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
+            }
+          }) 
         .then(response => response.json())
         .then(data => {
-            parseMapArrayAndDraw(data.map);
+            parseMapArrayAndDraw(data.body.map);
         })
         .catch(function(e) {
             console.log(e)
             randomlyGenerateMap()
             saveMap()
         });
+        
     }
 
     const gardenClickEvent = () => {
@@ -124,25 +131,50 @@ function CellManager(ctx){
         document.getElementById('layer-zero').addEventListener('click', function(e){
             let x = parseInt(e.offsetX / 16);
             let y = parseInt(e.offsetY / 16);
+            
             updateCell(managerContext.cells[x][y]);
             drawCell(managerContext.cells[x][y]);
             setCurrentCells(managerContext.cells);
             saveMap()
+            
         });
         
     }
 
     const saveMap = () =>{
-        
-        //Submit to DB
-        var xhr = new XMLHttpRequest();
-        xhr.open("PUT", "http://127.0.0.1:4567/map", true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({"map": this.cells}));
-
+        fetch('https://d6jiz6o9h1.execute-api.us-east-1.amazonaws.com/garden', {
+            headers: { 'Content-Type': 'application/json',  'Access-Control-Allow-Origin':'*' }, // tells the server we have json
+            method:'PUT', // can be POST
+            body: JSON.stringify({"body" : {"map": this.cells}}), // json is sent to the server as text
+          }).then(response => response.json())
+          .then(data => {
+              console.log(data)
+          })
+          .catch(function(e) {
+              console.log(e)
+          });
+          /*
+        fetch("https://d6jiz6o9h1.execute-api.us-east-1.amazonaws.com/garden", {
+            mode: 'cors',
+            method: 'PUT',
+            body: {"body" : {"map": this.cells} },
+            headers: {
+              'Access-Control-Allow-Origin':'*',
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Headers':'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
+            }
+          }) 
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+        .catch(function(e) {
+            console.log(e)
+        });
+        */
     }
 
-    init()
+    init();
     gardenClickEvent();
     setEventListeners();
     
@@ -175,17 +207,14 @@ function CellManager(ctx){
         });
         this.currentTool = managerContext.currentTool;
     }
-
 }
 
 //View
 function CanvasLayerZero(){
     this.canvas = document.getElementById('layer-zero');
     this.canvas.width = gridX * cellX;
-    this.canvas.height =gridY * cellY;
+    this.canvas.height = gridY * cellY;
     this.context = this.canvas.getContext('2d');
-
-
 }
 
 //Model
@@ -195,12 +224,3 @@ function Cell(cellPos, cellSize = {x:cellX, y:cellY}, cellValue = 'D'){
     this.cellValue = cellValue;
 }
 
-
-//SPEC
-//50 by 50 canvas
-//Three tools
-//Grass seed [Dirt -> Grass]
-//Shovel [Dirt -> Water]
-//Hoe [Grass -> Dirt]
-
-//Canvas should have a list of cells, it should call draw on each cell

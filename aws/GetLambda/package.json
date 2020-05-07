@@ -1,0 +1,15 @@
+{
+  "name": "getlambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "MongoDBGetMap.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-xray-sdk": "^3.0.1",
+    "mongodb": "^3.5.7"
+  }
+}
